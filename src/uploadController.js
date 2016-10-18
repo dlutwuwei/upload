@@ -2,6 +2,7 @@ var Client = require('ssh2').Client;
 var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
+var workspace = require('vscode').workspace;
 
 let config = {
     remotePath: '',
@@ -38,14 +39,11 @@ module.exports = class Upload {
             return new Promise(function (resolve, reject) {
                 conn.sftp(function (err, sftp) {
                     if (err) {
-                        throw err;
+                        reject(err);
                     }
                     sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
                         if (err) throw err;
-                        var fileList = list.map(function (item) {
-                            return item.filename;
-                        });
-                        resolve(fileList);
+                        resolve(list);
                         conn.end();
                     });
                 });
@@ -59,19 +57,25 @@ module.exports = class Upload {
         return this.init().then(function (conn) {
             return new Promise(function (resolve, reject) {
                 conn.sftp(function (err, sftp) {
-                    fs.createReadStream(path.join(self.options.localPath, filePath), {
+                    if(err) {
+                        reject(err);
+                    }
+                    fs.createReadStream(path.join(workspace.rootPath||self.options.localPath, filePath), {
                         flags: 'r',
                         encoding: null,
                         mode: '0666',
                         autoClose: true
+                    }).on('error', function (err) {
+                        reject(err);
                     }).pipe(through2(function (chunk, env, next) {
-                        resolve('' + chunk);
-                        next(null, chunk);
-                    })).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath)));
+                       next(null, chunk);
+                    })).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath))).on('error', function(err) {
+                        reject(err);
+                    }).on('finish', function() {
+                        resolve("upload file success: " + filePath);
+                    });
                 });
             });
-        }).catch(function (err) {
-            console.log(err)
         });
     }
     downloadFile(filePath) {
@@ -90,11 +94,12 @@ module.exports = class Upload {
                     }).on('error', function (err) {
                         reject(err);
                     }).pipe(through2(function (chunk, env, next) {
-                        resolve('' + chunk);
                         next(null, chunk);
-                    })).pipe(fs.createWriteStream(path.join(self.options.localPath, filePath))).on('error', function (err) {
+                    })).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                         reject(err);
-                    });
+                    }).on('finish', function() {
+                        resolve('download file success: ' + filePath);
+                    });;
                     // sftp.fastGet(path.join(self.options.remotePath, filePath), path.join(self.options.localPath, filePath), function (err) {
                     //     reject(err)
                     // });

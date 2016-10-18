@@ -2,7 +2,7 @@
   "name": "upload",
   "displayName": "upload",
   "description": "upload file to server with sftp",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "publisher": "wuwei",
   "engines": {
     "vscode": "^1.0.0"
@@ -11,21 +11,37 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:extension.upload"
+    "*"
   ],
   "main": "./extension",
   "contributes": {
     "commands": [
       {
-        "command": "extension.upload",
+        "command": "upload.upload",
         "title": "upload"
+      },{
+        "command": "upload.download",
+        "title": "download"
+      },{
+        "command": "upload.readdir",
+        "title": "readdir"
+      },{
+        "command": "editor.upload",
+        "title": "upload to server"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "editor.upload"
+        }
+      ]
+    }
   },
   "scripts": {
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
-  "devDependencies": {
+  "dependencies": {
     "ssh2": "^0.5.2",
     "vscode": "^0.11.0"
   }
