@@ -2,7 +2,7 @@
   "name": "upload",
   "displayName": "upload",
   "description": "upload file to server with sftp",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "wuwei",
   "engines": {
     "vscode": "^1.0.0"
@@ -39,7 +39,8 @@
     }
   },
   "scripts": {
-    "postinstall": "node ./node_modules/vscode/bin/install"
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "node ./test/index.js"
   },
   "dependencies": {
     "ssh2": "^0.5.2",

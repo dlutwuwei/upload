@@ -48,7 +48,7 @@ For example:
 ## Release Notes
 
 * 0.0.2 change vscode verion
-
+* 0.0.6 reuse connection, much more fast
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)

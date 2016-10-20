@@ -18,6 +18,8 @@ var StatusBarAlignment = vscode.StatusBarAlignment;
 var StatusBarItem = vscode.StatusBarItem;
 
 var statusBarItem = {};
+var controller = {};
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 function activate(context) {
@@ -35,6 +37,7 @@ function activate(context) {
         window.showInformationMessage('No config file, Please add .vscode-upload.json in workspace')
         return true;
     }
+    controller = new Upload(config);
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
@@ -68,7 +71,6 @@ function activate(context) {
     //let configuration = workspace.getConfiguration('wuwei.upload');
 
     context.subscriptions.push(upload, download, readdir, uploadEditor);
-
 }
 exports.activate = activate;
 
@@ -98,7 +100,7 @@ function getFilePath(doc) {
     } else {
         var sliceStart = focusDoc.uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
         var sliceEnd = focusDoc.uri.path.length;
-        console.log(focusDoc.uri.path.slice(sliceStart, sliceEnd));
+        console.log('file path:',focusDoc.uri.path.slice(sliceStart, sliceEnd));
         filePath = focusDoc.uri.path.slice(sliceStart, sliceEnd);
     }
     return filePath;
@@ -106,10 +108,9 @@ function getFilePath(doc) {
 
 
 function sftpUpload(doc) {
-    var upload = new Upload(config);
     var filePath = getFilePath(doc);
     updateStatus('cloud-upload','uploading');
-    filePath && upload.uploadFile(filePath).then(function (data) {
+    filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
         updateStatus('cloud-upload','uploaded')
     }).catch(function (err) {
@@ -119,10 +120,9 @@ function sftpUpload(doc) {
 }
 
 function sftpDownload(doc) {
-    var upload = new Upload(config);
     var filePath = getFilePath(doc);
     updateStatus('cloud-download', 'downloading');
-    filePath && upload.downloadFile(filePath).then(function (data) {
+    filePath && controller.downloadFile(filePath).then(function (data) {
         console.log(data);
         updateStatus('cloud-download', 'downloaded');
     }).catch(function (err) {
@@ -132,13 +132,12 @@ function sftpDownload(doc) {
 }
 
 function sftpReadDir() {
-    var upload = new Upload(config);
-    upload.readDir('/').then(function (data) {
+    controller.readDir('/').then(function (data) {
         var text = data.map(function(item) {
             return item.longname
         }).join('\n');
-        console.log(path.join(extRoot,'.vscode-upload.json'));
-        workspace.openTextDocument(path.join(extRoot,'.vscode-upload.json'));
+        // console.log(path.join(extRoot,'.vscode-upload.json'));
+        // workspace.openTextDocument(path.join(extRoot,'.vscode-upload.json'));
     }).catch(function(err) {
         console.log(err);
     });
