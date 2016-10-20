@@ -20,7 +20,7 @@ module.exports = class Upload {
     init() {
         var self = this;
         this.core = new Promise(function (resolve, reject) {
-            if(self.sftp) {
+            if (self.sftp) {
                 console.log('connection is alive');
                 resolve(self.sftp);
             } else {
@@ -28,9 +28,9 @@ module.exports = class Upload {
                 var conn = new Client();
                 var options = self.options;
                 conn.on('ready', function (err) {
-                    if(err) reject(err);
+                    if (err) reject(err);
                     console.log('connection is ready!');
-                    conn.sftp(function(err, sftp) {
+                    conn.sftp(function (err, sftp) {
                         self.sfp = sftp;
                         resolve(sftp);
                     });
@@ -50,7 +50,6 @@ module.exports = class Upload {
                 sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
                     if (err) throw err;
                     resolve(list);
-                    conn.end();
                 });
             });
         }).catch(function (err) {
@@ -69,15 +68,21 @@ module.exports = class Upload {
                     autoClose: true
                 }).on('error', function (err) {
                     reject(err);
+                }).on('end', function(){
+                    console.log('read file from local done,', filePath);
                 }).pipe(through2(function (chunk, env, next) {
                     next(null, chunk);
-                })).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath))).on('error', function (err) {
+                })).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
+                    flags: 'w',
+                    encoding: null,
+                    mode: '0666',
+                    autoClose: true
+                })).on('error', function (err) {
                     reject(err);
                 }).on('finish', function () {
-                    resolve("upload file success: " + filePath);
-                }).on('close', function() {
+                    resolve("upload file to remote done: " + filePath);
+                }).on('close', function () {
                     resolve('connection closed');
-                    self.sfp = null;
                 });
             });
         }).catch(function (err) {
@@ -94,6 +99,8 @@ module.exports = class Upload {
                     encoding: null,
                     mode: '0666',
                     autoClose: true
+                }).on('end', function(){
+                    console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
                     reject(err);
                 }).pipe(through2(function (chunk, env, next) {
@@ -101,10 +108,9 @@ module.exports = class Upload {
                 })).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                     reject(err);
                 }).on('finish', function () {
-                    resolve('download file success: ' + filePath);
-                }).on('close', function() {
+                    resolve('download file to local done: ' + filePath);
+                }).on('close', function () {
                     resolve('connection closed');
-                    self.sfp = null;
                 });
                 // sftp.fastGet(path.join(self.options.remotePath, filePath), path.join(self.options.localPath, filePath), function (err) {
                 //     reject(err)

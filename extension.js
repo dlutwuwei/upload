@@ -136,6 +136,7 @@ function sftpReadDir() {
         var text = data.map(function(item) {
             return item.longname
         }).join('\n');
+        console.log("list remote directory done:\n", text);
         // console.log(path.join(extRoot,'.vscode-upload.json'));
         // workspace.openTextDocument(path.join(extRoot,'.vscode-upload.json'));
     }).catch(function(err) {
