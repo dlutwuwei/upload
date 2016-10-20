@@ -2,8 +2,7 @@ var Client = require('ssh2').Client;
 var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
-var workspace = require('vscode').workspace;
-
+var { workspace, window } = require('vscode');
 let config = {
     remotePath: '',
     localPath: '',
@@ -15,11 +14,11 @@ let config = {
 module.exports = class Upload {
     constructor(options) {
         this.options = Object.assign(config, options);
-        this.init();
     }
-    init() {
+    init(options) {
+        this.options = options || this.options;
         var self = this;
-        this.core = new Promise(function (resolve, reject) {
+        return this.core = new Promise(function (resolve, reject) {
             if (self.sftp) {
                 console.log('connection is alive');
                 resolve(self.sftp);
@@ -40,14 +39,22 @@ module.exports = class Upload {
                     username: options.username,
                     password: options.password
                 });
+                conn.on("error", function (err) {
+                    reject(err.message);
+                    resolve(null);
+                });
             }
+        }).catch(function (err) {
+            self.clear();
+            console.log(err);
+            window.showErrorMessage(err);
         });
     }
     readDir(filePath) {
         var self = this;
         return this.core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
-                sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
+                sftp && sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
                     if (err) throw err;
                     resolve(list);
                 });
@@ -61,14 +68,14 @@ module.exports = class Upload {
         var self = this;
         return this.core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
-                fs.createReadStream(path.join(workspace.rootPath || self.options.localPath, filePath), {
+                sftp && fs.createReadStream(path.join(workspace.rootPath || self.options.localPath, filePath), {
                     flags: 'r',
                     encoding: null,
                     mode: '0666',
                     autoClose: true
                 }).on('error', function (err) {
                     reject(err);
-                }).on('end', function(){
+                }).on('end', function () {
                     console.log('read file from local done,', filePath);
                 }).pipe(through2(function (chunk, env, next) {
                     next(null, chunk);
@@ -94,12 +101,12 @@ module.exports = class Upload {
         var self = this;
         return this.core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
-                sftp.createReadStream(path.join(self.options.remotePath, filePath), {
+                sftp && sftp.createReadStream(path.join(self.options.remotePath, filePath), {
                     flags: 'r',
                     encoding: null,
                     mode: '0666',
                     autoClose: true
-                }).on('end', function(){
+                }).on('end', function () {
                     console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
                     reject(err);
@@ -120,5 +127,8 @@ module.exports = class Upload {
             self.sftp = null;
             console.log(err);
         });;
+    }
+    clear() {
+        this.core = null;
     }
 }
