@@ -50,6 +50,8 @@ For example:
 * 0.0.6 reuse connection, much more fast.
 * 0.0.7 add filesize uploaded show, connect again when config file changed.
 * 0.0.8 change readme and 
+* 0.0.9 create config file auto in workspace
+
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)

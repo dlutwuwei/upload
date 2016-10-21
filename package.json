@@ -2,8 +2,17 @@
   "name": "upload",
   "displayName": "upload",
   "description": "upload file to server with sftp",
-  "version": "0.0.8",
+  "icon":"synchronize.svg",
+  "version": "0.1.0",
   "publisher": "wuwei",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dlutwuwei/upload.git"
+  },
+  "homepage": "https://github.com/dlutwuwei/upload",
+  "bugs": {
+    "url": "https://github.com/dlutwuwei/upload/issues"
+  },
   "engines": {
     "vscode": "^1.0.0"
   },
@@ -19,13 +28,16 @@
       {
         "command": "upload.upload",
         "title": "upload"
-      },{
+      },
+      {
         "command": "upload.download",
         "title": "download"
-      },{
+      },
+      {
         "command": "upload.readdir",
         "title": "readdir"
-      },{
+      },
+      {
         "command": "editor.upload",
         "title": "upload to server"
       }
