@@ -7,23 +7,19 @@ var fs = require('fs');
 var Upload = require('./src/uploadController');
 var path = require('path');
 
-var workspace = vscode.workspace;
-var window = vscode.window;
-var extensions = vscode.extensions;
-var TextDocument = vscode.TextDocument;
+let {workspace, window, extensions, TextDocument} = require('vscode');
+let { loadStatus, updateStatus } = require('./src/statusBar');
 
 var extRoot = extensions.getExtension('wuwei.upload').extensionPath;
 var Uri = vscode.Uri;
-var StatusBarAlignment = vscode.StatusBarAlignment;
-var StatusBarItem = vscode.StatusBarItem;
 
-var statusBarItem = {};
 var controller = new Upload();
 var config = null;
 var configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
 
 function check() {
     config = JSON.parse(fs.readFileSync(configPath));
+    // controller must init before use
     controller.init(config);
 }
 
@@ -77,15 +73,7 @@ function deactivate() {
 exports.deactivate = deactivate;
 
 
-function loadStatus() {
-    statusBarItem = window.createStatusBarItem(StatusBarAlignment.Left);
-    statusBarItem.text = `$(sync)  Sync`;
-    statusBarItem.show();
-}
 
-function updateStatus(icon, text) {
-    statusBarItem.text = `$(${icon})  ${text}`;
-}
 
 function getFilePath(doc) {
     var focusDoc = doc || window.activeTextEditor.document;

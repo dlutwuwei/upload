@@ -3,6 +3,7 @@ var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var { workspace, window } = require('vscode');
+let { loadStatus, updateStatus } = require('./statusBar');
 let config = {
     remotePath: '',
     localPath: '',
@@ -11,18 +12,22 @@ let config = {
     password: ''
 };
 
+let core = null;
+
 module.exports = class Upload {
     constructor(options) {
         this.options = Object.assign(config, options);
     }
     init(options) {
-        this.options = options || this.options;
-        var self = this;
-        return this.core = new Promise(function (resolve, reject) {
-            if (self.sftp) {
+        let finalOptions = options || this.options;
+        let self = this;
+        return core = new Promise(function (resolve, reject) {
+            if (self.sftp && JSON.stringify(self.options) === JSON.stringify(finalOptions)) {
+                // reuse sftp not conn when options is not change
                 console.log('connection is alive');
                 resolve(self.sftp);
             } else {
+                self.options = finalOptions;
                 console.log('connection start');
                 var conn = new Client();
                 var options = self.options;
@@ -30,17 +35,21 @@ module.exports = class Upload {
                     if (err) reject(err);
                     console.log('connection is ready!');
                     conn.sftp(function (err, sftp) {
-                        self.sfp = sftp;
+                        self.sftp = sftp;
                         resolve(sftp);
                     });
                 }).connect({
-                    host: options.host,
-                    port: options.port,
-                    username: options.username,
-                    password: options.password
+                    host: finalOptions.host,
+                    port: finalOptions.port,
+                    username: finalOptions.username,
+                    password: finalOptions.password
                 });
                 conn.on("error", function (err) {
                     reject(err.message);
+                    // ssh2 client or sftp error, we connect again;
+                    self.sftp = null;
+                    // make sure close conn;
+                    conn.end();
                     resolve(null);
                 });
             }
@@ -52,7 +61,7 @@ module.exports = class Upload {
     }
     readDir(filePath) {
         var self = this;
-        return this.core.then(function (sftp) {
+        return core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
                 sftp && sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
                     if (err) throw err;
@@ -66,8 +75,9 @@ module.exports = class Upload {
     }
     uploadFile(filePath) {
         var self = this;
-        return this.core.then(function (sftp) {
+        return core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
+                let count = 0;
                 sftp && fs.createReadStream(path.join(workspace.rootPath || self.options.localPath, filePath), {
                     flags: 'r',
                     encoding: null,
@@ -77,9 +87,9 @@ module.exports = class Upload {
                     reject(err);
                 }).on('end', function () {
                     console.log('read file from local done,', filePath);
-                }).pipe(through2(function (chunk, env, next) {
-                    next(null, chunk);
-                })).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
+                }).on('data', function(chunk) {
+                    updateStatus('cloud-upload', 'uploading', count += chunk.length);
+                }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
                     flags: 'w',
                     encoding: null,
                     mode: '0666',
@@ -99,8 +109,9 @@ module.exports = class Upload {
     }
     downloadFile(filePath) {
         var self = this;
-        return this.core.then(function (sftp) {
+        return core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
+                let count = 0;
                 sftp && sftp.createReadStream(path.join(self.options.remotePath, filePath), {
                     flags: 'r',
                     encoding: null,
@@ -110,9 +121,9 @@ module.exports = class Upload {
                     console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
                     reject(err);
-                }).pipe(through2(function (chunk, env, next) {
-                    next(null, chunk);
-                })).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
+                }).on('data', function(chunk) {
+                    updateStatus('cloud-download', 'downloading', count += chunk.length);
+                }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                     reject(err);
                 }).on('finish', function () {
                     resolve('download file to local done: ' + filePath);
@@ -129,6 +140,6 @@ module.exports = class Upload {
         });;
     }
     clear() {
-        this.core = null;
+        core = null;
     }
 }
