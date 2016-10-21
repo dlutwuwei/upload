@@ -17,6 +17,7 @@ just simple config some setting, upload code to server, get rid of vim or emacs;
 ## Requirements
 
 node: v6.6.0
+
 npm: 3.10.3
 
 ## Settings

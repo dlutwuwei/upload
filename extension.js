@@ -1,24 +1,34 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-var vscode = require('vscode');
-var Client = require('ssh2').Client;
-var through2 = require('through2');
-var fs = require('fs');
-var Upload = require('./src/uploadController');
-var path = require('path');
-
-let {workspace, window, extensions, TextDocument} = require('vscode');
+const Client = require('ssh2').Client;
+const through2 = require('through2');
+const fs = require('fs');
+const path = require('path');
+const Stream = require('stream').Readable
+let { commands, workspace, window, extensions, TextDocument, Uri} = require('vscode');
 let { loadStatus, updateStatus } = require('./src/statusBar');
+const Upload = require('./src/uploadController');
 
-var extRoot = extensions.getExtension('wuwei.upload').extensionPath;
-var Uri = vscode.Uri;
-
-var controller = new Upload();
-var config = null;
-var configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
+let extRoot = extensions.getExtension('wuwei.upload').extensionPath;
+let controller = new Upload();
+let config = null;
+let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
 
 function check() {
-    config = JSON.parse(fs.readFileSync(configPath));
+    let isFile = true
+    try {
+        isFile = fs.statSync(configPath).isFile();
+        config = JSON.parse(fs.readFileSync(configPath));
+    } catch (e) {
+        fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
+            autoClose: true
+        }).pipe(fs.createWriteStream(configPath, {
+            flags: 'w',
+            encoding: null,
+            mode: '0666',
+            autoClose: true
+        }));
+    }
     // controller must init before use
     controller.init(config);
 }
@@ -34,31 +44,31 @@ function activate(context) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    var upload = vscode.commands.registerCommand('upload.upload', function () {
+    var upload = commands.registerCommand('upload.upload', function () {
         sftpUpload();
     });
 
-    var download = vscode.commands.registerCommand('upload.download', function () {
+    var download = commands.registerCommand('upload.download', function () {
         sftpDownload();
     });
 
-    var readdir = vscode.commands.registerCommand('upload.readdir', function () {
+    var readdir = commands.registerCommand('upload.readdir', function () {
         sftpReadDir();
     });
 
-    vscode.workspace.onDidSaveTextDocument(function (event) {
+    workspace.onDidSaveTextDocument(function (event) {
         sftpUpload();
     });
 
-    vscode.workspace.onDidCloseTextDocument(function (event) {
+    workspace.onDidCloseTextDocument(function (event) {
         sftpUpload();
     });
 
-    vscode.window.onDidChangeActiveTextEditor(function (event) {
+    window.onDidChangeActiveTextEditor(function (event) {
         //console.log('hello')
     });
 
-    var uploadEditor = vscode.commands.registerTextEditorCommand('editor.upload', function (editor) {
+    var uploadEditor = commands.registerTextEditorCommand('editor.upload', function (editor) {
         sftpUpload(editor.document);
     });
     //let configuration = workspace.getConfiguration('wuwei.upload');

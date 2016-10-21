@@ -9,6 +9,7 @@ let config = {
     localPath: '',
     host: '',
     port: 22,
+    username:'',
     password: ''
 };
 
@@ -84,7 +85,7 @@ module.exports = class Upload {
                     mode: '0666',
                     autoClose: true
                 }).on('error', function (err) {
-                    reject(err);
+                    reject(err.message);
                 }).on('end', function () {
                     console.log('read file from local done,', filePath);
                 }).on('data', function(chunk) {
@@ -95,7 +96,7 @@ module.exports = class Upload {
                     mode: '0666',
                     autoClose: true
                 })).on('error', function (err) {
-                    reject(err);
+                    reject(err.message);
                 }).on('finish', function () {
                     resolve("upload file to remote done: " + filePath);
                 }).on('close', function () {
@@ -120,26 +121,20 @@ module.exports = class Upload {
                 }).on('end', function () {
                     console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
-                    reject(err);
+                    reject(err.message);
                 }).on('data', function(chunk) {
                     updateStatus('cloud-download', 'downloading', count += chunk.length);
                 }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
-                    reject(err);
+                    reject(err.message);
                 }).on('finish', function () {
                     resolve('download file to local done: ' + filePath);
                 }).on('close', function () {
                     resolve('connection closed');
                 });
-                // sftp.fastGet(path.join(self.options.remotePath, filePath), path.join(self.options.localPath, filePath), function (err) {
-                //     reject(err)
-                // });
             });
         }).catch(function (err) {
             self.sftp = null;
             console.log(err);
         });;
-    }
-    clear() {
-        core = null;
     }
 }
