@@ -2,7 +2,7 @@
   "name": "upload",
   "displayName": "upload",
   "description": "upload file to server with sftp",
-  "version": "0.0.6",
+  "version": "0.0.8",
   "publisher": "wuwei",
   "engines": {
     "vscode": "^1.0.0"

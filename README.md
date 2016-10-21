@@ -5,21 +5,18 @@ upload or download files from remote server via ssh2 and sftp
 ## usage
 
 `cmd+shift+p` input upload command to upload file to remote server;
+
 `cmd+shift+p` input download command to download file to local;
+
 `cmd+shift+p` input readdir command to see dirtory;
 
 ## Features
 
 just simple config some setting, upload code to server, get rid of vim or emacs;
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
 ## Requirements
 
 node: v6.6.0
-
 npm: 3.10.3
 
 ## Settings
@@ -29,7 +26,8 @@ npm: 3.10.3
 * username: your user name
 * password: your password
 * remotePath: the absolute path of your project in remote server;
-* localPath: the absolute path of your project in local;
+* localPath: the absolute path or relative path of your project in local;
+
 For example:
 
 ```
@@ -47,9 +45,10 @@ For example:
 
 ## Release Notes
 
-* 0.0.2 change vscode verion
-* 0.0.6 reuse connection, much more fast
-
+* 0.0.2 change vscode verion.
+* 0.0.6 reuse connection, much more fast.
+* 0.0.7 add filesize uploaded show, connect again when config file changed.
+* 0.0.8 change readme and 
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
