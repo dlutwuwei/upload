@@ -138,6 +138,15 @@ function sftpReadDir() {
         console.log("list remote directory done:\n", text);
         // console.log(path.join(extRoot,'.vscode-upload.json'));
         // workspace.openTextDocument(path.join(extRoot,'.vscode-upload.json'));
+        var ouput = path.join(extRoot, 'output.txt');
+        fs.writeFile(output, 'utf-8', function (err) {
+            if (err) {
+                console.log(err);
+            } else {
+                workspace.openTextDocument(ouput);
+            }
+        })
+
     }).catch(function (err) {
         console.log(err);
     });

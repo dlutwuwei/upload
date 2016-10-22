@@ -55,7 +55,7 @@ module.exports = class Upload {
                 });
             }
         }).catch(function (err) {
-            self.clear();
+            core = null;
             console.log(err);
             window.showErrorMessage(err);
         });
