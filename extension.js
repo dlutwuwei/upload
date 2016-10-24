@@ -59,14 +59,6 @@ function activate(context) {
         sftpUpload();
     });
 
-    workspace.onDidCloseTextDocument(function (event) {
-        sftpUpload();
-    });
-
-    window.onDidChangeActiveTextEditor(function (event) {
-        //console.log('hello')
-    });
-
     var uploadEditor = commands.registerTextEditorCommand('editor.upload', function (editor) {
         sftpUpload(editor.document);
     });
