@@ -1,0 +1,12 @@
+drwxr-xr-x   12 wuwei    wuwei        4096 Oct 20 03:35 pylib
+drwxr-xr-x   36 wuwei    wuwei        4096 Oct 20 03:34 pyapp
+drwxr-xr-x    6 wuwei    wuwei        4096 Sep 27 09:56 pyidl
+-rw-r--r--    1 wuwei    wuwei          24 Aug  5 06:28 __init__.py
+-rw-r--r--    1 wuwei    wuwei         192 Oct 23 10:23 .gitignore
+-rw-r--r--    1 wuwei    wuwei         176 Oct 24 05:37 .vscode-upload.json
+drwxr-xr-x    6 wuwei    wuwei        4096 Sep 27 09:56 idl
+drwxr-xr-x    5 wuwei    wuwei        4096 Oct 21 12:43 .git
+drwxr-xr-x   12 wuwei    wuwei        4096 Oct 21 12:00 fe
+drwxr-xr-x    3 wuwei    wuwei        4096 Sep 27 09:56 nodeapp
+drwxr-xr-x    6 wuwei    wuwei        4096 Oct 20 03:35 pydal
+-rw-r--r--    1 wuwei    wuwei           0 Oct 21 09:26 .vscode-upload1.json

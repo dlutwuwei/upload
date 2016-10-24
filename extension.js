@@ -5,7 +5,8 @@ const through2 = require('through2');
 const fs = require('fs');
 const path = require('path');
 const Stream = require('stream').Readable
-let { commands, workspace, window, extensions, TextDocument, Uri} = require('vscode');
+const vscode = require('vscode');
+let { commands, workspace, window, extensions, TextDocument, Uri} = vscode;
 let { loadStatus, updateStatus } = require('./src/statusBar');
 const Upload = require('./src/uploadController');
 
@@ -15,9 +16,7 @@ let config = null;
 let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
 
 function check() {
-    let isFile = true
     try {
-        isFile = fs.statSync(configPath).isFile();
         config = JSON.parse(fs.readFileSync(configPath));
     } catch (e) {
         fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
@@ -106,7 +105,7 @@ function getFilePath(doc) {
 function sftpUpload(doc) {
     check();
     var filePath = getFilePath(doc);
-    updateStatus('cloud-upload', 'uploading');
+    filePath && updateStatus('cloud-upload', 'uploading');
     filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
         updateStatus('cloud-upload', 'uploaded')
@@ -119,7 +118,7 @@ function sftpUpload(doc) {
 function sftpDownload(doc) {
     check();
     var filePath = getFilePath(doc);
-    updateStatus('cloud-download', 'downloading');
+    filePath && updateStatus('cloud-download', 'downloading');
     filePath && controller.downloadFile(filePath).then(function (data) {
         console.log(data);
         updateStatus('cloud-download', 'downloaded');
@@ -135,17 +134,18 @@ function sftpReadDir() {
         var text = data.map(function (item) {
             return item.longname
         }).join('\n');
-        console.log("list remote directory done:\n", text);
-        // console.log(path.join(extRoot,'.vscode-upload.json'));
-        // workspace.openTextDocument(path.join(extRoot,'.vscode-upload.json'));
-        var ouput = path.join(extRoot, 'output.txt');
-        fs.writeFile(output, 'utf-8', function (err) {
+        //console.log("list remote directory done:\n", text);
+        let output = path.join(extRoot, 'output.txt');
+        let uri = Uri.file(output);
+        fs.writeFile(output, text, function (err) {
             if (err) {
                 console.log(err);
             } else {
-                workspace.openTextDocument(ouput);
+                commands.executeCommand('vscode.open', uri).catch(err => {
+                    console.log(err);
+                });
             }
-        })
+        });
 
     }).catch(function (err) {
         console.log(err);
