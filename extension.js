@@ -59,8 +59,8 @@ function activate(context) {
         sftpUpload();
     });
 
-    var uploadEditor = commands.registerTextEditorCommand('editor.upload', function (editor) {
-        sftpUpload(editor.document);
+    var uploadEditor = commands.registerTextEditorCommand('editor.upload', function (acitveEditor, edit, uri) {
+        sftpUpload(uri);
     });
     //let configuration = workspace.getConfiguration('wuwei.upload');
 
@@ -76,9 +76,9 @@ exports.deactivate = deactivate;
 
 
 
-function getFilePath(doc) {
-    var focusDoc = doc || window.activeTextEditor.document;
-    if (focusDoc.uri.path.indexOf(path.resolve(workspace.rootPath || '', config.localPath)) !== 0) {
+function getFilePath(uri) {
+    uri = uri || window.activeTextEditor.document.uri;
+    if (uri.path.indexOf(path.resolve(workspace.rootPath || '', config.localPath)) !== 0) {
         window.showInformationMessage('file is not in localPath');
         return null;
     }
@@ -86,17 +86,17 @@ function getFilePath(doc) {
     if (!workspace.rootPath) {
         filePath = path.resolve(config.localPath, focusDoc.fileName);
     } else {
-        var sliceStart = focusDoc.uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
-        var sliceEnd = focusDoc.uri.path.length;
-        console.log('file path:', focusDoc.uri.path.slice(sliceStart, sliceEnd));
-        filePath = focusDoc.uri.path.slice(sliceStart, sliceEnd);
+        var sliceStart = uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
+        var sliceEnd = uri.path.length;
+        console.log('file path:', uri.path.slice(sliceStart, sliceEnd));
+        filePath = uri.path.slice(sliceStart, sliceEnd);
     }
     return filePath;
 }
 
-function sftpUpload(doc) {
+function sftpUpload(uri) {
     check();
-    var filePath = getFilePath(doc);
+    var filePath = getFilePath(uri);
     filePath && updateStatus('cloud-upload', 'uploading');
     filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
@@ -107,9 +107,9 @@ function sftpUpload(doc) {
     });
 }
 
-function sftpDownload(doc) {
+function sftpDownload(uri) {
     check();
-    var filePath = getFilePath(doc);
+    var filePath = getFilePath(uri);
     filePath && updateStatus('cloud-download', 'downloading');
     filePath && controller.downloadFile(filePath).then(function (data) {
         console.log(data);

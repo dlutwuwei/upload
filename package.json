@@ -47,6 +47,11 @@
         {
           "command": "editor.upload"
         }
+      ],
+      "explorer/context": [
+        {
+          "command": "editor.upload"
+        }
       ]
     }
   },
