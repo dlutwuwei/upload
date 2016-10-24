@@ -9,11 +9,32 @@ let config = {
     localPath: '',
     host: '',
     port: 22,
-    username:'',
+    username: '',
     password: ''
 };
 
 let core = null;
+
+function getAllFiles(root) {
+    let stat = fs.statSync();
+    let res = [];
+    if (stat.isFile()) {
+        res.push(root);
+    } else if (stat.isDirectory()) {
+        let files = fs.readdirSync(root);
+        files.forEach(function (file) {
+            var pathname = root + '/' + file
+                , stat = fs.lstatSync(pathname);
+
+            if (!stat.isDirectory()) {
+                res.push(pathname);
+            } else {
+                res = res.concat(getAllFiles(pathname));
+            }
+        });
+    }
+    return res;
+}
 
 module.exports = class Upload {
     constructor(options) {
@@ -79,29 +100,32 @@ module.exports = class Upload {
         return core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
                 let count = 0;
-                sftp && fs.createReadStream(path.join(workspace.rootPath || self.options.localPath, filePath), {
-                    flags: 'r',
-                    encoding: null,
-                    mode: '0666',
-                    autoClose: true
-                }).on('error', function (err) {
-                    reject(err.message);
-                }).on('end', function () {
-                    console.log('read file from local done,', filePath);
-                }).on('data', function(chunk) {
-                    updateStatus('cloud-upload', 'uploading', count += chunk.length);
-                }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
-                    flags: 'w',
-                    encoding: null,
-                    mode: '0666',
-                    autoClose: true
-                })).on('error', function (err) {
-                    reject(err.message);
-                }).on('finish', function () {
-                    resolve("upload file to remote done: " + filePath);
-                }).on('close', function () {
-                    resolve('connection closed');
+                getAllFiles(path.join(workspace.rootPath || self.options.localPath, filePath)).forEach(path => {
+                    sftp && fs.createReadStream(path, {
+                        flags: 'r',
+                        encoding: null,
+                        mode: '0666',
+                        autoClose: true
+                    }).on('error', function (err) {
+                        reject(err.message);
+                    }).on('end', function () {
+                        console.log('read file from local done,', filePath);
+                    }).on('data', function (chunk) {
+                        updateStatus('cloud-upload', 'uploading', count += chunk.length);
+                    }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
+                        flags: 'w',
+                        encoding: null,
+                        mode: '0666',
+                        autoClose: true
+                    })).on('error', function (err) {
+                        reject(err.message);
+                    }).on('finish', function () {
+                        resolve("upload file to remote done: " + filePath);
+                    }).on('close', function () {
+                        resolve('connection closed');
+                    });
                 });
+
             });
         }).catch(function (err) {
             self.sftp = null;
@@ -122,7 +146,7 @@ module.exports = class Upload {
                     console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
                     reject(err.message);
-                }).on('data', function(chunk) {
+                }).on('data', function (chunk) {
                     updateStatus('cloud-download', 'downloading', count += chunk.length);
                 }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                     reject(err.message);
