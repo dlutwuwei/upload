@@ -11,19 +11,20 @@ First, set config in `.vscode-upload.json` in your workspace
 
 ### how to use
 
-right click to select upload to server;
+* right click to select upload to server;
 
-`cmd+shift+p` input upload command to upload file to remote server;
+* right click in explorer to upload directory to server;
 
-`cmd+shift+p` input download command to download file to local;
+* `cmd+shift+p` input upload command to upload file to remote server;
 
-`cmd+shift+p` input readdir command to see dirtory;
+* `cmd+shift+p` input download command to download file to local;
+
+* `cmd+shift+p` input readdir command to see dirtory;
 
 ## Features
 
-just simple config some setting, upload code to server, get rid of vim or emacs;
+Just simple set some config, upload file to server, get rid of vim or emacs;
 
-> do not support uploading dirtory yet.
 > we should use it in a workspace ( after opening dirtory).
 
 ## Requirements
@@ -41,7 +42,8 @@ only support sftp via ssh2
 * username: your user name
 * password: your password
 * remotePath: the absolute path of your project in remote server;
-* localPath: the absolute path or relative path of your project in local;
+
+> localPath is no useful, it's set to workspace root in code ;
 
 For example:
 
@@ -51,8 +53,7 @@ For example:
     "port": 22,
     "username": "wuwei",
     "password": "WuWei.****",
-    "remotePath": "/data04/wuwei/repos/i18n_web",
-    "localPath": "/User/wuwei/code/i18n_web"
+    "remotePath": "/data04/wuwei/repos/i18n_web"
 }
 ```
 
