@@ -100,10 +100,10 @@ function sftpUpload(uri) {
     filePath && updateStatus('cloud-upload', 'uploading');
     filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
-        updateStatus('cloud-upload', 'uploaded')
+        updateStatus('cloud-upload', 'uploaded');
     }).catch(function (err) {
-        console.log(err);
-        window.showInformationMessage(err.messagae + ', upload file failed');
+        window.showInformationMessage(err.message + ', upload file failed');
+        updateStatus('cloud-upload', 'failed');
     });
 }
 
@@ -116,7 +116,7 @@ function sftpDownload(uri) {
         updateStatus('cloud-download', 'downloaded');
     }).catch(function (err) {
         console.log(err);
-        window.showInformationMessage(err.messagae + ', downloa file failed');
+        window.showInformationMessage(err.messagae + ', download file failed');
     });
 }
 

@@ -7,7 +7,7 @@ module.exports.loadStatus = function() {
     statusBarItem.show();
 }
 
-module.exports.updateStatus = function(icon, text, loaded = 0, size="") {
-    statusBarItem.text = `$(${icon})  ${text}  ${loaded}B`;
+module.exports.updateStatus = function(icon, text, loaded = 0, name="") {
+    statusBarItem.text = `$(${icon})  ${text}  ${loaded} ${name}`;
 }
 

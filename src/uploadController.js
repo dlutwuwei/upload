@@ -15,25 +15,10 @@ let config = {
 
 let core = null;
 
-function getAllFiles(root) {
-    let stat = fs.statSync();
-    let res = [];
-    if (stat.isFile()) {
-        res.push(root);
-    } else if (stat.isDirectory()) {
-        let files = fs.readdirSync(root);
-        files.forEach(function (file) {
-            var pathname = root + '/' + file
-                , stat = fs.lstatSync(pathname);
 
-            if (!stat.isDirectory()) {
-                res.push(pathname);
-            } else {
-                res = res.concat(getAllFiles(pathname));
-            }
-        });
-    }
-    return res;
+
+function* test() {
+    yield 'test';
 }
 
 module.exports = class Upload {
@@ -98,39 +83,45 @@ module.exports = class Upload {
     uploadFile(filePath) {
         var self = this;
         return core.then(function (sftp) {
-            return new Promise(function (resolve, reject) {
-                let count = 0;
-                getAllFiles(path.join(workspace.rootPath || self.options.localPath, filePath)).forEach(path => {
-                    sftp && fs.createReadStream(path, {
-                        flags: 'r',
-                        encoding: null,
-                        mode: '0666',
-                        autoClose: true
-                    }).on('error', function (err) {
-                        reject(err.message);
-                    }).on('end', function () {
-                        console.log('read file from local done,', filePath);
-                    }).on('data', function (chunk) {
-                        updateStatus('cloud-upload', 'uploading', count += chunk.length);
-                    }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, filePath), {
-                        flags: 'w',
-                        encoding: null,
-                        mode: '0666',
-                        autoClose: true
-                    })).on('error', function (err) {
-                        reject(err.message);
-                    }).on('finish', function () {
-                        resolve("upload file to remote done: " + filePath);
-                    }).on('close', function () {
-                        resolve('connection closed');
+            return getAllFiles(path.join(workspace.rootPath || self.options.localPath, filePath)).reduce((_promise, _path) => {
+                return _promise.then(function (value) {
+                    let relPath = path.relative(workspace.rootPath, _path);
+                    let dirPath = path.dirname(relPath);
+                    console.log("upload file to remote done: ", value);
+                    updateStatus('cloud-upload', 'uploaded', path.basename(value));
+                    return new Promise(function (resolve, reject) {
+                        mkdirp(path.join(self.options.remotePath, dirPath), sftp, function (err, made) {
+                            let count = 0;
+                            sftp && fs.createReadStream(_path, {
+                                flags: 'r',
+                                encoding: null,
+                                mode: '0666',
+                                autoClose: true
+                            }).on('error', function (err) {
+                                reject(err);
+                            }).on('end', function () {
+                                console.log('read file from local done,', _path);
+                            }).on('data', function (chunk) {
+                                count += chunk.length;
+                                updateStatus('cloud-upload', 'uploading', count + 'B', path.basename(_path));
+                            }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, relPath), {
+                                flags: 'w',
+                                encoding: null,
+                                mode: '0666',
+                                autoClose: true
+                            })).on('error', function (err) {
+                                reject(err);
+                            }).on('finish', function () {
+                                resolve(_path);
+                            }).on('close', function () {
+                                resolve('connection closed');
+                            });
+                        });
+
                     });
                 });
-
-            });
-        }).catch(function (err) {
-            self.sftp = null;
-            console.log(err);
-        });;
+            }, Promise.resolve('start'));
+        });
     }
     downloadFile(filePath) {
         var self = this;
@@ -147,7 +138,8 @@ module.exports = class Upload {
                 }).on('error', function (err) {
                     reject(err.message);
                 }).on('data', function (chunk) {
-                    updateStatus('cloud-download', 'downloading', count += chunk.length);
+                    count += chunk.length;
+                    updateStatus('cloud-download', 'downloading', count + 'B');
                 }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                     reject(err.message);
                 }).on('finish', function () {
@@ -156,9 +148,75 @@ module.exports = class Upload {
                     resolve('connection closed');
                 });
             });
-        }).catch(function (err) {
-            self.sftp = null;
-            console.log(err);
-        });;
+        });
     }
+}
+
+function getAllFiles(root) {
+    let stat = fs.statSync(root);
+    let res = [];
+    if (stat.isFile()) {
+        res.push(root);
+    } else if (stat.isDirectory()) {
+        let files = fs.readdirSync(root);
+        files.forEach(function (file) {
+            var pathname = root + '/' + file
+                , stat = fs.lstatSync(pathname);
+
+            if (!stat.isDirectory()) {
+                res.push(pathname);
+            } else {
+                res = res.concat(getAllFiles(pathname));
+            }
+        });
+    }
+    return res;
+}
+
+function mkdirp(_path, sftp, callback, made) {
+    // sftp.stat(path.join(self.options.remotePath, dirPath), function (error, stat) {
+    //     if (error) {
+    //         reject(error);
+    //     }
+    //     if (stat.isDirectory()) {
+    //         console.log('directory exist')
+    //     } else {
+    //         sftp && sftp.mkdir(path.join(self.options.remotePath, dirPath), function (err) {
+    //             if (err) reject(err);
+    //         });
+    //     }
+    // });
+    _path = path.resolve(_path);
+    let mode = undefined;
+    if (mode === undefined) {
+        mode = '0666';
+    }
+    (sftp || fs).mkdir(_path, mode, function (err) {
+        if (!err) {
+            made = made || _path;
+            //no err or no non-exist parent dir
+            return callback(null, made);
+        }
+        switch (err.code) {
+            case 'ENOENT':
+            case 2:
+                mkdirp(path.dirname(_path), sftp, function (err, made) {
+                    if (err) callback(err, made);
+                    else mkdirp(_path, sftp, callback, made);
+                });
+                break;
+
+            // In the case of any other error, just see if there's a dir
+            // there already.  If so, then hooray!  If not, then something
+            // is borked.
+            default:
+                (sftp || fs).stat(_path, function (er2, stat) {
+                    // if the stat fails, then that's super weird.
+                    // let the original error be the failure reason.
+                    if (er2 || !stat.isDirectory()) callback(err, made)
+                    else callback(null, made);
+                });
+                break;
+        }
+    });
 }
