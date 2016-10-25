@@ -65,7 +65,8 @@ For example:
 * 0.0.7 add filesize uploaded show, connect again when config file changed.
 * 0.0.8 change readme and some code fix.
 * 0.0.9 create config file auto in workspace.
-* 1.0.0 fix some status show.
+* 0.1.0 fix some status show.
+* 0.1.1 add upload dir to remote, add right click menu in explorer
 
 ### For more information
 
