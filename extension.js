@@ -86,10 +86,10 @@ function getFilePath(uri) {
     if (!workspace.rootPath) {
         filePath = path.resolve(config.localPath, focusDoc.fileName);
     } else {
-        var sliceStart = uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
-        var sliceEnd = uri.path.length;
-        console.log('file path:', uri.path.slice(sliceStart, sliceEnd));
-        filePath = uri.path.slice(sliceStart, sliceEnd);
+        // var sliceStart = uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
+        // var sliceEnd = uri.path.length;
+        //console.log('file path:', uri.path.slice(sliceStart, sliceEnd));
+        filePath = path.relative(workspace.rootPath, uri.path);
     }
     return filePath;
 }
