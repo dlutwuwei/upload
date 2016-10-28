@@ -18,6 +18,9 @@ let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json'
 function check() {
     try {
         config = JSON.parse(fs.readFileSync(configPath));
+        if(Array.isArray(config)) {
+            config = config[0];
+        }
     } catch (e) {
         fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
             autoClose: true
