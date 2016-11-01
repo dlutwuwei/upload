@@ -13,14 +13,6 @@ let config = {
     password: ''
 };
 
-let core = null;
-
-
-
-function* test() {
-    yield 'test';
-}
-
 module.exports = class Upload {
     constructor(options) {
         this.options = Object.assign(config, options);
@@ -28,7 +20,7 @@ module.exports = class Upload {
     init(options) {
         let finalOptions = options || this.options;
         let self = this;
-        return core = new Promise(function (resolve, reject) {
+        return this.core = new Promise(function (resolve, reject) {
             if (self.sftp && JSON.stringify(self.options) === JSON.stringify(finalOptions)) {
                 // reuse sftp not conn when options is not change
                 console.log('connection is alive');
@@ -61,14 +53,14 @@ module.exports = class Upload {
                 });
             }
         }).catch(function (err) {
-            core = null;
+            this.core = null;
             console.log(err);
             window.showErrorMessage(err);
         });
     }
     readDir(filePath) {
         var self = this;
-        return core.then(function (sftp) {
+        return this.core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
                 sftp && sftp.readdir(path.join(self.options.remotePath, filePath), function (err, list) {
                     if (err) throw err;
@@ -82,7 +74,7 @@ module.exports = class Upload {
     }
     uploadFile(filePath) {
         var self = this;
-        return core.then(function (sftp) {
+        return this.core.then(function (sftp) {
             return getAllFiles(path.join(workspace.rootPath || self.options.localPath, filePath)).reduce((_promise, _path) => {
                 return _promise.then(function (value) {
                     let relPath = path.relative(workspace.rootPath, _path);
@@ -125,7 +117,7 @@ module.exports = class Upload {
     }
     downloadFile(filePath) {
         var self = this;
-        return core.then(function (sftp) {
+        return this.core.then(function (sftp) {
             return new Promise(function (resolve, reject) {
                 let count = 0;
                 sftp && sftp.createReadStream(path.join(self.options.remotePath, filePath), {

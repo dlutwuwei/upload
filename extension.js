@@ -103,7 +103,7 @@ function sftpUpload(uri) {
     filePath && updateStatus('cloud-upload', 'uploading');
     filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
-        updateStatus('cloud-upload', 'uploaded');
+        updateStatus('cloud-upload', 'uploaded', 'all files');
     }).catch(function (err) {
         window.showInformationMessage(err.message + ', upload file failed');
         updateStatus('cloud-upload', 'failed');

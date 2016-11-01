@@ -9,11 +9,15 @@ upload or download files from remote server via ssh2 and sftp
 ### setting
 First, set config in `.vscode-upload.json` in your workspace
 
+> I have removed localpath config item, local path is in your workspace default
+
 ### how to use
+
+* `ctrl + s` will trigger upload
 
 * right click to select upload to server;
 
-* right click in explorer to upload directory to server;
+* right click in explorer to upload directory or file to server;
 
 * `cmd+shift+p` input upload command to upload file to remote server;
 
@@ -68,7 +72,7 @@ For example:
 * 0.0.9 create config file auto in workspace.
 * 0.1.0 fix some status show.
 * 0.1.1 add upload dir to remote, add right click menu in explorer
-* 0.1.2 
+* 0.1.2 upload readme
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
