@@ -81,7 +81,7 @@ exports.deactivate = deactivate;
 
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
-    if (uri.path.indexOf(path.resolve(workspace.rootPath || '', config.localPath)) !== 0) {
+    if (workspace.rootPath == null || uri.path.indexOf(workspace.rootPath) != 0) {
         window.showInformationMessage('file is not in localPath');
         return null;
     }
