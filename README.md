@@ -71,8 +71,9 @@ For example:
 * 0.0.8 change readme and some code fix.
 * 0.0.9 create config file auto in workspace.
 * 0.1.0 fix some status show.
-* 0.1.1 add upload dir to remote, add right click menu in explorer
-* 0.1.2 upload readme
+* 0.1.1 add upload dir to remote, add right click menu in explorer.
+* 0.1.2 upload readme and multi-server support and server switch.
+
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
