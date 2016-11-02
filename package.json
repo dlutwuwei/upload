@@ -38,6 +38,10 @@
         "title": "readdir"
       },
       {
+        "command": "upload.nextServer",
+        "title": "next server"
+      },
+      {
         "command": "editor.upload",
         "title": "upload to server"
       }

@@ -14,13 +14,24 @@ let extRoot = extensions.getExtension('wuwei.upload').extensionPath;
 let controller = new Upload();
 let config = null;
 let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
+let current = 0;
+
+function initUpload(config, i=0) {
+    if (Array.isArray(config)) {
+        if(i >= config.length){
+            current = 0;
+        }
+        controller.init(config[i]);
+    } else {
+        // controller must init before use
+        controller.init(config);
+    }
+}
 
 function check() {
     try {
         config = JSON.parse(fs.readFileSync(configPath));
-        if(Array.isArray(config)) {
-            config = config[0];
-        }
+        console.log(config);
     } catch (e) {
         fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
             autoClose: true
@@ -31,8 +42,7 @@ function check() {
             autoClose: true
         }));
     }
-    // controller must init before use
-    controller.init(config);
+    initUpload(config, current);
 }
 
 // this method is called when your extension is activated
@@ -58,6 +68,18 @@ function activate(context) {
         sftpReadDir();
     });
 
+    var nextServer = commands.registerCommand('upload.nextServer', function () {
+        console.log(config);
+        if(Array.isArray(config)) {
+            current ++;
+            if(current >= config.length) {
+                current = 0;
+            }
+            updateStatus('sync', 'server-name:', config[current].name || config[current].host);
+        }
+        updateStatus('sync', 'server-name:', config.name || config.host);
+    });
+
     workspace.onDidSaveTextDocument(function (event) {
         sftpUpload();
     });
@@ -67,7 +89,7 @@ function activate(context) {
     });
     //let configuration = workspace.getConfiguration('wuwei.upload');
 
-    context.subscriptions.push(upload, download, readdir, uploadEditor);
+    context.subscriptions.push(upload, download, readdir, uploadEditor, nextServer);
 }
 exports.activate = activate;
 
@@ -77,7 +99,9 @@ function deactivate() {
 exports.deactivate = deactivate;
 
 
+function nextServer() {
 
+}
 
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
