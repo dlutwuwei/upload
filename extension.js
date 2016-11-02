@@ -16,9 +16,9 @@ let config = null;
 let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
 let current = 0;
 
-function initUpload(config, i=0) {
+function initUpload(config, i = 0) {
     if (Array.isArray(config)) {
-        if(i >= config.length){
+        if (i >= config.length) {
             current = 0;
         }
         controller.init(config[i]);
@@ -31,8 +31,8 @@ function initUpload(config, i=0) {
 function check() {
     try {
         config = JSON.parse(fs.readFileSync(configPath));
-        console.log(config);
     } catch (e) {
+        console.log(e)
         fs.createReadStream(path.join(extRoot, '.vscode-upload.json'), {
             autoClose: true
         }).pipe(fs.createWriteStream(configPath, {
@@ -69,15 +69,7 @@ function activate(context) {
     });
 
     var nextServer = commands.registerCommand('upload.nextServer', function () {
-        console.log(config);
-        if(Array.isArray(config)) {
-            current ++;
-            if(current >= config.length) {
-                current = 0;
-            }
-            updateStatus('sync', 'server-name:', config[current].name || config[current].host);
-        }
-        updateStatus('sync', 'server-name:', config.name || config.host);
+        nextSftpServer();
     });
 
     workspace.onDidSaveTextDocument(function (event) {
@@ -99,8 +91,17 @@ function deactivate() {
 exports.deactivate = deactivate;
 
 
-function nextServer() {
-
+function nextSftpServer() {
+    check();
+    if (Array.isArray(config)) {
+        current++;
+        if (current >= config.length) {
+            current = 0;
+        }
+        updateStatus('sync', 'server-name:', config[current].name || config[current].host);
+    } else {
+        updateStatus('sync', 'server-name:', config.name || config.host);
+    }
 }
 
 function getFilePath(uri) {
