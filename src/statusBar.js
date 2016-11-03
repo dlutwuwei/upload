@@ -7,7 +7,7 @@ module.exports.loadStatus = function() {
     statusBarItem.show();
 }
 
-module.exports.updateStatus = function(icon="sync", text, loaded = 0, name="") {
-    statusBarItem.text = `$(${icon})  ${text}  ${loaded} ${name}`;
+module.exports.updateStatus = function(host="", icon="sync", text, loaded = 0, name="") {
+    statusBarItem.text = `server: ${host}  $(${icon})  ${text}  ${loaded} ${name}`;
 }
 

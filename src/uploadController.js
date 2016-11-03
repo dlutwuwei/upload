@@ -16,6 +16,9 @@ let config = {
 module.exports = class Upload {
     constructor(options) {
         this.options = Object.assign(config, options);
+        this.core = null;
+        this.options = null;
+        this.sftp = null;
     }
     init(options) {
         let finalOptions = options || this.options;
@@ -45,6 +48,7 @@ module.exports = class Upload {
                 });
                 conn.on("error", function (err) {
                     reject(err.message);
+                    console.log(err)
                     // ssh2 client or sftp error, we connect again;
                     self.sftp = null;
                     // make sure close conn;
@@ -52,11 +56,12 @@ module.exports = class Upload {
                     resolve(null);
                 });
             }
-        }).catch(function (err) {
-            this.core = null;
-            console.log(err);
-            window.showErrorMessage(err);
         });
+        // .catch(function (err) {
+        //     this.core = null;
+        //     console.log(err.message);
+        //     window.showErrorMessage(err.message);
+        // });
     }
     readDir(filePath) {
         var self = this;
@@ -80,7 +85,7 @@ module.exports = class Upload {
                     let relPath = path.relative(workspace.rootPath, _path);
                     let dirPath = path.dirname(relPath);
                     console.log("upload file to remote done: ", value);
-                    updateStatus('cloud-upload', 'uploaded', path.basename(value));
+                    updateStatus(self.options.host, 'cloud-upload', 'uploaded', path.basename(value));
                     return new Promise(function (resolve, reject) {
                         mkdirp(path.join(self.options.remotePath, dirPath), sftp, function (err, made) {
                             let count = 0;
@@ -95,7 +100,7 @@ module.exports = class Upload {
                                 console.log('read file from local done,', _path);
                             }).on('data', function (chunk) {
                                 count += chunk.length;
-                                updateStatus('cloud-upload', 'uploading', count + 'B', path.basename(_path));
+                                updateStatus(self.options.host, 'cloud-upload', 'uploading', count + 'B', path.basename(_path));
                             }).pipe(sftp.createWriteStream(path.join(self.options.remotePath, relPath), {
                                 flags: 'w',
                                 encoding: null,
@@ -131,7 +136,7 @@ module.exports = class Upload {
                     reject(err.message);
                 }).on('data', function (chunk) {
                     count += chunk.length;
-                    updateStatus('cloud-download', 'downloading', count + 'B');
+                    updateStatus(self.options.host, 'cloud-download', 'downloading', count + 'B');
                 }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
                     reject(err.message);
                 }).on('finish', function () {
@@ -141,6 +146,11 @@ module.exports = class Upload {
                 });
             });
         });
+    }
+    reset() {
+        this.core = null;
+        this.sftp = null;
+        this.options = null;
     }
 }
 

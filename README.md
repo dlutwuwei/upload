@@ -4,12 +4,21 @@ upload or download files from remote server via ssh2 and sftp
 
 ## usage
 
+### upload file or directory and download file
+
 ![usage](./upload.gif)
+
+> not support download directory, it fouces on uploading to remote server, 
+compensate for your difficulty on vim or emacs;
+
+### switch sever
+
+![switch](./switch.gif)
 
 ### setting
 First, set config in `.vscode-upload.json` in your workspace
 
-> I have removed localpath config item, local path is in your workspace default
+> I have removed localpath config item, local path is in your workspace default, not confused to set different local config
 
 ### how to use
 
@@ -24,6 +33,8 @@ First, set config in `.vscode-upload.json` in your workspace
 * `cmd+shift+p` input download command to download file to local;
 
 * `cmd+shift+p` input readdir command to see dirtory;
+
+* `cmd+shift+p` input next server command to switch server, need setting;
 
 ## Features
 
@@ -60,6 +71,23 @@ For example:
     "remotePath": "/data04/wuwei/repos/i18n_web"
 }
 ```
+or
+```
+[{
+    "host": "10.1.6.175",
+    "port": 22,
+    "username": "****",
+    "password": ********",
+    "remotePath": "/data04/****/repos/i18n_web"
+},{
+    "host": "10.1.6.188",
+    "port": 22,
+    "username": "****",
+    "password": "*******",
+    "remotePath": "/data04/****/repos/i18n_web"
+}]
+```
+for multi-server to switch
 
 ## Known Issues
 

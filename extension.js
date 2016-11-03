@@ -15,20 +15,13 @@ let controller = new Upload();
 let config = null;
 let configPath = path.join(workspace.rootPath || extRoot, '\.vscode-upload.json');
 let current = 0;
+let currentConfig = null;
 
-function initUpload(config, i = 0) {
-    if (Array.isArray(config)) {
-        if (i >= config.length) {
-            current = 0;
-        }
-        controller.init(config[i]);
-    } else {
-        // controller must init before use
-        controller.init(config);
-    }
+function initUpload(config) {
+    controller.init(config);
 }
 
-function check() {
+function initConfig() {
     try {
         config = JSON.parse(fs.readFileSync(configPath));
     } catch (e) {
@@ -42,7 +35,18 @@ function check() {
             autoClose: true
         }));
     }
-    initUpload(config, current);
+    if (Array.isArray(config)) {
+        if (current >= config.length) {
+            current = 0;
+        }
+        currentConfig = config[current];
+    } else {
+        currentConfig = config;
+    }
+}
+function check() {
+    initConfig();
+    initUpload(currentConfig);
 }
 
 // this method is called when your extension is activated
@@ -92,16 +96,10 @@ exports.deactivate = deactivate;
 
 
 function nextSftpServer() {
-    check();
-    if (Array.isArray(config)) {
-        current++;
-        if (current >= config.length) {
-            current = 0;
-        }
-        updateStatus('sync', 'server-name:', config[current].name || config[current].host);
-    } else {
-        updateStatus('sync', 'server-name:', config.name || config.host);
-    }
+    controller.reset();
+    current ++;
+    initConfig();
+    updateStatus(currentConfig.host, 'sync', 'sync');
 }
 
 function getFilePath(uri) {
@@ -125,13 +123,13 @@ function getFilePath(uri) {
 function sftpUpload(uri) {
     check();
     var filePath = getFilePath(uri);
-    filePath && updateStatus('cloud-upload', 'uploading');
+    filePath && updateStatus(currentConfig.host, 'cloud-upload', 'uploading');
     filePath && controller.uploadFile(filePath).then(function (data) {
         console.log(data);
-        updateStatus('cloud-upload', 'uploaded', 'all files');
+        updateStatus(currentConfig.host, 'cloud-upload', 'uploaded', 'all files');
     }).catch(function (err) {
         window.showInformationMessage(err.message + ', upload file failed');
-        updateStatus('cloud-upload', 'failed');
+        updateStatus(currentConfig.host, 'cloud-upload', 'failed');
     });
 }
 
