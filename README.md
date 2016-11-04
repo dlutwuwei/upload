@@ -57,6 +57,7 @@ only support sftp via ssh2
 * username: your user name
 * password: your password
 * remotePath: the absolute path of your project in remote server;
+* disable: setting true will stop upload when save document, default false;
 
 > localPath is no useful, it's set to workspace root in code ;
 
@@ -68,7 +69,8 @@ For example:
     "port": 22,
     "username": "wuwei",
     "password": "WuWei.****",
-    "remotePath": "/data04/wuwei/repos/i18n_web"
+    "remotePath": "/data04/wuwei/repos/i18n_web",
+    "disable": false
 }
 ```
 or
@@ -78,13 +80,15 @@ or
     "port": 22,
     "username": "****",
     "password": ********",
-    "remotePath": "/data04/****/repos/i18n_web"
+    "remotePath": "/data04/****/repos/i18n_web",
+    "disable": false
 },{
     "host": "10.1.6.188",
     "port": 22,
     "username": "****",
     "password": "*******",
-    "remotePath": "/data04/****/repos/i18n_web"
+    "remotePath": "/data04/****/repos/i18n_web",
+    "disable": false
 }]
 ```
 for multi-server to switch

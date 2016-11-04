@@ -77,6 +77,11 @@ function activate(context) {
     });
 
     workspace.onDidSaveTextDocument(function (event) {
+        initConfig();
+        if(!currentConfig.host || !currentConfig.username || currentConfig.disable) {
+            updateStatus(currentConfig.host, 'sync', 'sync', 'disabled');
+            return;
+        }
         sftpUpload();
     });
 

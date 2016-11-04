@@ -3,7 +3,7 @@
   "displayName": "upload",
   "description": "upload file to server with sftp",
   "icon":"synchronize.svg",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "wuwei",
   "repository": {
     "type": "git",
@@ -13,6 +13,7 @@
   "bugs": {
     "url": "https://github.com/dlutwuwei/upload/issues"
   },
+  "keywords": ["upload", "sync", "sftp", "ssh2", "file"],
   "engines": {
     "vscode": "^1.0.0"
   },
