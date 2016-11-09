@@ -80,9 +80,9 @@ function activate(context) {
         initConfig();
         if(!currentConfig.host || !currentConfig.username || currentConfig.disable) {
             updateStatus(currentConfig.host, 'sync', 'sync', 'disabled');
-            return;
+        } else {
+            sftpUpload();
         }
-        sftpUpload();
     });
 
     var uploadEditor = commands.registerTextEditorCommand('editor.upload', function (acitveEditor, edit, uri) {
