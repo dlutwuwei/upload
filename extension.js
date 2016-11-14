@@ -110,16 +110,13 @@ function nextSftpServer() {
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
     if (workspace.rootPath == null || uri.path.indexOf(workspace.rootPath) != 0) {
-        window.showInformationMessage('file is not in localPath');
+        window.showInformationMessage('file is not in your workspace');
         return null;
     }
     var filePath = '';
     if (!workspace.rootPath) {
         filePath = path.resolve(config.localPath, focusDoc.fileName);
     } else {
-        // var sliceStart = uri.path.indexOf(workspace.rootPath) + workspace.rootPath.length + 1;
-        // var sliceEnd = uri.path.length;
-        //console.log('file path:', uri.path.slice(sliceStart, sliceEnd));
         filePath = path.relative(workspace.rootPath, uri.path);
     }
     return filePath;
@@ -157,7 +154,6 @@ function sftpReadDir() {
         var text = data.map(function (item) {
             return item.longname
         }).join('\n');
-        //console.log("list remote directory done:\n", text);
         let output = path.join(extRoot, 'output.txt');
         let uri = Uri.file(output);
         fs.writeFile(output, text, function (err) {

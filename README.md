@@ -18,7 +18,7 @@ compensate for your difficulty on vim or emacs;
 ### setting
 First, set config in `.vscode-upload.json` in your workspace
 
-> I have removed localpath config item, local path is in your workspace default, not confused to set different local config
+> I have removed localpath config item, local path is your workspace default, not confused to set different local config
 
 ### how to use
 
@@ -59,7 +59,7 @@ only support sftp via ssh2
 * remotePath: the absolute path of your project in remote server;
 * disable: setting true will stop upload when save document, default false;
 
-> localPath is no useful, it's set to workspace root in code ;
+> localPath is not useful now, it's set to workspace root path in code;
 
 For example:
 
