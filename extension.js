@@ -55,6 +55,10 @@ function activate(context) {
 
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
+    if(!workspace.rootPath) {
+        console.log('do not start when has no rootPath');
+        return;
+    }
     console.log('Congratulations, your extension "upload" is now active!');
     loadStatus();
     // The command has been defined in the package.json file
