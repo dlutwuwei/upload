@@ -1,6 +1,7 @@
 # upload
 
 upload or download files from remote server via ssh2 and sftp
+> localPath is not useful now, it's set to workspace root path in code;
 
 ## usage
 
@@ -40,8 +41,6 @@ First, set config in `.vscode-upload.json` in your workspace
 
 Just simple set some config, upload file to server, get rid of vim or emacs;
 
-> we should use it in a workspace ( after opening dirtory).
-
 ## Requirements
 
 node: v6.6.0
@@ -57,7 +56,7 @@ only support sftp via ssh2
 * username: your user name
 * password: your password
 * remotePath: the absolute path of your project in remote server;
-* disable: setting true will stop upload when save document, default false;
+* disable: setting true will stop uploading when ctrl+s, default false;
 
 > localPath is not useful now, it's set to workspace root path in code;
 
