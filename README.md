@@ -3,6 +3,8 @@
 upload or download files from remote server via ssh2 and sftp
 > localPath is not useful now, it's set to workspace root path in code;
 
+Just simple set some config, upload file to server, get rid of vim or emacs;
+
 ## usage
 
 ### upload file or directory and download file
@@ -36,18 +38,6 @@ First, set config in `.vscode-upload.json` in your workspace
 * `cmd+shift+p` input readdir command to see dirtory;
 
 * `cmd+shift+p` input next server command to switch server, need setting;
-
-## Features
-
-Just simple set some config, upload file to server, get rid of vim or emacs;
-
-## Requirements
-
-node: v6.6.0
-
-npm: 3.10.3
-
-only support sftp via ssh2
 
 ## Settings
 
@@ -91,6 +81,14 @@ or
 }]
 ```
 for multi-server to switch
+
+## Requirements
+
+node: v6.6.0
+
+npm: 3.10.3
+
+only support sftp via ssh2
 
 ## Known Issues
 
