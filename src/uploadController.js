@@ -1,9 +1,12 @@
-var Client = require('ssh2').Client;
+var ssh2 = require('ssh2');
+var Client = ssh2.Client;
 var path = require('path');
 var fs = require('fs');
 var through2 = require('through2');
 var { workspace, window } = require('vscode');
 let { loadStatus, updateStatus } = require('./statusBar');
+
+var utils = ssh2.utils;
 let config = {
     remotePath: '',
     localPath: '',
@@ -23,6 +26,22 @@ module.exports = class Upload {
     init(options) {
         let finalOptions = options || this.options;
         let self = this;
+        let connect_options = {
+            host: finalOptions.host,
+            port: finalOptions.port,
+            username: finalOptions.username
+        };
+        if(finalOptions.password) {
+            connect_options.password = finalOptions.password;
+        }
+        console.log(require('fs').readFileSync(''+finalOptions.private_key))
+        if(finalOptions.private_key) {
+            try {
+                connect_options.private_key = require('fs').readFileSync(finalOptions.private_key);
+            } catch(e) {
+                connect_options.private_key = '';                
+            }
+        }
         return this.core = new Promise(function (resolve, reject) {
             if (self.sftp && JSON.stringify(self.options) === JSON.stringify(finalOptions)) {
                 // reuse sftp not conn when options is not change
@@ -40,14 +59,9 @@ module.exports = class Upload {
                         self.sftp = sftp;
                         resolve(sftp);
                     });
-                }).connect({
-                    host: finalOptions.host,
-                    port: finalOptions.port,
-                    username: finalOptions.username,
-                    password: finalOptions.password
-                });
+                }).connect(connect_options);
                 conn.on("error", function (err) {
-                    reject(err.message);
+                    reject(err);
                     console.log(err)
                     // ssh2 client or sftp error, we connect again;
                     self.sftp = null;
@@ -57,11 +71,6 @@ module.exports = class Upload {
                 });
             }
         });
-        // .catch(function (err) {
-        //     this.core = null;
-        //     console.log(err.message);
-        //     window.showErrorMessage(err.message);
-        // });
     }
     readDir(filePath) {
         var self = this;

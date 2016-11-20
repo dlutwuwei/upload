@@ -47,6 +47,7 @@ First, set config in `.vscode-upload.json` in your workspace
 * password: your password
 * remotePath: the absolute path of your project in remote server;
 * disable: setting true will stop uploading when ctrl+s, default false;
+* private_Key: add private key login;
 
 > localPath is not useful now, it's set to workspace root path in code;
 

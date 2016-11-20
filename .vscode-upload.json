@@ -5,7 +5,8 @@
     "username": "",
     "password": "",
     "remotePath": "",
-    "disable": false
+    "disable": false,
+    "private_key": "~/.ssh/id_rsa"
 },{
     "name":"",
     "host": "",
@@ -13,5 +14,6 @@
     "username": "",
     "password": "",
     "remotePath": "",
-    "disable": false
+    "disable": false,
+    "private_key": "~/.ssh/id_rsa"
 }]
