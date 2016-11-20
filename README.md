@@ -47,7 +47,7 @@ First, set config in `.vscode-upload.json` in your workspace
 * password: your password
 * remotePath: the absolute path of your project in remote server;
 * disable: setting true will stop uploading when ctrl+s, default false;
-* private_Key: add private key login;
+* private_Key: private key path to authenriate;
 
 > localPath is not useful now, it's set to workspace root path in code;
 
@@ -103,7 +103,7 @@ only support sftp via ssh2
 * 0.1.0 fix some status show.
 * 0.1.1 add upload dir to remote, add right click menu in explorer.
 * 0.1.2 upload readme and multi-server support and server switch.
-
+* 0.1.3 add private key authenriate.
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)

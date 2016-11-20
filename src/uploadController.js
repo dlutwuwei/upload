@@ -34,10 +34,10 @@ module.exports = class Upload {
         if(finalOptions.password) {
             connect_options.password = finalOptions.password;
         }
-        console.log(require('fs').readFileSync(''+finalOptions.private_key))
+        console.log(path.resolve(finalOptions.private_key));
         if(finalOptions.private_key) {
             try {
-                connect_options.private_key = require('fs').readFileSync(finalOptions.private_key);
+                connect_options.private_key = require('fs').readFileSync(path.resolve(finalOptions.private_key));
             } catch(e) {
                 connect_options.private_key = '';                
             }
@@ -142,12 +142,12 @@ module.exports = class Upload {
                 }).on('end', function () {
                     console.log('read file from remote done,', filePath);
                 }).on('error', function (err) {
-                    reject(err.message);
+                    reject(err);
                 }).on('data', function (chunk) {
                     count += chunk.length;
                     updateStatus(self.options.host, 'cloud-download', 'downloading', count + 'B');
                 }).pipe(fs.createWriteStream(path.join(workspace.rootPath || self.options.localPath, filePath))).on('error', function (err) {
-                    reject(err.message);
+                    reject(err);
                 }).on('finish', function () {
                     resolve('download file to local done: ' + filePath);
                 }).on('close', function () {
