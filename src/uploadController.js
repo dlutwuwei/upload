@@ -123,7 +123,6 @@ module.exports = class Upload {
                                 resolve('connection closed');
                             });
                         });
-
                     });
                 });
             }, Promise.resolve('start'));

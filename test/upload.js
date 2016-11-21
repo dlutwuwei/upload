@@ -5,7 +5,6 @@ function Upload(options) {
     console.log('start ssh2 connect');
     return new Promise(function (resolve, reject) {
         conn.on('ready', function () {
-            console.log('Client :: ready');
             conn.sftp(function (err, sftp) {
                 if (err) {
                     console.log(err)
@@ -17,7 +16,6 @@ function Upload(options) {
                     var fileList = list.map(function (item) {
                         return item.filename;
                     });
-                    console.log(fileList);
                     conn.end();
                 });
 
