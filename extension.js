@@ -113,14 +113,14 @@ function nextSftpServer() {
 
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
-    if (workspace.rootPath == null || uri.path.indexOf(workspace.rootPath) != 0) {
+    if (!config.localPath && (workspace.rootPath == null || uri.path.indexOf(workspace.rootPath) != 0)) {
         window.showInformationMessage('file is not in your workspace');
         return null;
     }
     var filePath = '';
-    if (!workspace.rootPath) {
-        filePath = path.resolve(config.localPath, focusDoc.fileName);
-    } else {
+    if (config.localPath) {
+        filePath = path.relative(config.localPath, uri.path);
+    } else if (workspace.rootPath) {
         filePath = path.relative(workspace.rootPath, uri.path);
     }
     return filePath;
