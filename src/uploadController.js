@@ -15,7 +15,7 @@ let config = {
     username: '',
     password: ''
 };
-
+let exclude = []
 module.exports = class Upload {
     constructor(options) {
         this.options = Object.assign(config, options);
@@ -26,6 +26,11 @@ module.exports = class Upload {
     init(options) {
         let finalOptions = options || this.options;
         let self = this;
+        if(Array.isArray(finalOptions.exclude)) {
+            exclude = finalOptions.exclude;
+        } else {
+            exclude = [finalOptions.exclude];
+        }
         let connect_options = {
             host: finalOptions.host,
             port: finalOptions.port,
@@ -34,8 +39,8 @@ module.exports = class Upload {
         if(finalOptions.password) {
             connect_options.password = finalOptions.password;
         }
-        console.log(path.resolve(finalOptions.private_key));
         if(finalOptions.private_key) {
+            // console.log(path.resolve(finalOptions.private_key));
             try {
                 connect_options.private_key = require('fs').readFileSync(path.resolve(finalOptions.private_key));
             } catch(e) {
@@ -89,13 +94,15 @@ module.exports = class Upload {
     uploadFile(filePath) {
         var self = this;
         return this.core.then(function (sftp) {
-            return getAllFiles(path.join(workspace.rootPath || self.options.localPath, filePath)).reduce((_promise, _path) => {
+            let root = self.options.localPath || workspace.rootPath;
+            return getAllFiles(path.join( root, filePath)).reduce((_promise, _path) => {
                 return _promise.then(function (value) {
-                    let relPath = path.relative(workspace.rootPath, _path);
-                    let dirPath = path.dirname(relPath);
+                    let relPath = path.relative( root, _path); // path related to workspace.rootPath
+                    let dirPath = path.dirname(relPath); // dirname of relative pah
                     console.log("upload file to remote done: ", value);
                     updateStatus(self.options.host, 'cloud-upload', 'uploaded', path.basename(value));
                     return new Promise(function (resolve, reject) {
+                        console.log(root, self.options.remotePath, dirPath)
                         mkdirp(path.join(self.options.remotePath, dirPath), sftp, function (err, made) {
                             let count = 0;
                             sftp && fs.createReadStream(_path, {
@@ -163,6 +170,10 @@ module.exports = class Upload {
 }
 
 function getAllFiles(root) {
+    if(exclude.includes(path.basename(root))) {
+        return [];
+    }
+    console.log('root', path.basename(root))
     let stat = fs.statSync(root);
     let res = [];
     if (stat.isFile()) {

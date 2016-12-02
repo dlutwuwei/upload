@@ -1,7 +1,8 @@
 # upload
 
 upload or download files from remote server via ssh2 and sftp
-> localPath is not useful now, it's set to workspace root path in code;
+
+> localPath is ok now, it must be set to directory contains your files;
 
 Just simple set some config, upload file to server, get rid of vim or emacs;
 
@@ -17,11 +18,6 @@ compensate for your difficulty on vim or emacs;
 ### switch sever
 
 ![switch](./switch.gif)
-
-### setting
-First, set config in `.vscode-upload.json` in your workspace
-
-> I have removed localpath config item, local path is your workspace default, not confused to set different local config
 
 ### how to use
 
@@ -41,16 +37,17 @@ First, set config in `.vscode-upload.json` in your workspace
 
 ## Settings
 
+First, set config in `.vscode-upload.json` in your workspace
+
 * host: the address of remote server;
 * port: the port of ssh2 server, default 22;
 * username: your user name
 * password: your password
 * remotePath: the absolute path of your project in remote server;
-* localPath: set root path of your localfile
+* localPath: the absolute root path contains your local files;
 * disable: setting true will stop uploading when ctrl+s, default false;
 * private_Key: private key path to authenriate;
-
-> localPath is not useful now, it's set to workspace root path in code;
+* exclude: exclude directory name;
 
 For example:
 
@@ -58,10 +55,12 @@ For example:
 {
     "host": "10.100.6.175",
     "port": 22,
-    "username": "wuwei",
-    "password": "WuWei.****",
-    "remotePath": "/data04/wuwei/repos/i18n_web",
-    "disable": false
+    "username": "****",
+    "password": "****.****",
+    "remotePath": "/data04/****/repos/i18n_web",
+    "localPath": "/Users/****/coding/todomvc",
+    "disable": false,
+    "exclude": ["node_modules"] // or ""node_modules""
 }
 ```
 or
@@ -105,8 +104,8 @@ only support sftp via ssh2
 * 0.1.1 add upload dir to remote, add right click menu in explorer.
 * 0.1.2 upload readme and multi-server support and server switch.
 * 0.1.3 fix bug.
-* 0.1.4 add private key authenriate.
-* 0.1.5 add local path config
+* 0.1.4 add private key authenriate,  add local path config setting
+
 ### For more information
 
 * [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
