@@ -113,15 +113,16 @@ function nextSftpServer() {
 
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
-    if (!config.localPath && (workspace.rootPath == null || uri.path.indexOf(workspace.rootPath) != 0)) {
+    console.log(workspace.rootPath, uri);
+    if (!config.localPath && (workspace.rootPath == null || uri.fsPath.indexOf(workspace.rootPath) != 0)) {
         window.showInformationMessage('file is not in your workspace');
         return null;
     }
     var filePath = '';
     if (config.localPath) {
-        filePath = path.relative(config.localPath, uri.path);
+        filePath = path.relative(config.localPath, uri.fsPath);
     } else if (workspace.rootPath) {
-        filePath = path.relative(workspace.rootPath, uri.path);
+        filePath = path.relative(workspace.rootPath, uri.fsPath);
     }
     return filePath;
 }
