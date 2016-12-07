@@ -113,7 +113,6 @@ function nextSftpServer() {
 
 function getFilePath(uri) {
     uri = uri || window.activeTextEditor.document.uri;
-    console.log(workspace.rootPath, uri);
     if (!config.localPath && (workspace.rootPath == null || uri.fsPath.indexOf(workspace.rootPath) != 0)) {
         window.showInformationMessage('file is not in your workspace');
         return null;
