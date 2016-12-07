@@ -1,3 +1,9 @@
+# notice
+
+I have test the extension in windows pc, beacause of my fault, it is really cased by windows os path format,
+(uri.path and uri.fspath is different in windows os), This version has fixed it for windows users.
+Enjoy...
+
 # upload
 
 upload or download files from remote server via ssh2 and sftp
@@ -104,7 +110,8 @@ only support sftp via ssh2
 * 0.1.1 add upload dir to remote, add right click menu in explorer.
 * 0.1.2 upload readme and multi-server support and server switch.
 * 0.1.3 fix bug.
-* 0.1.4 add private key authenriate,  add local path config setting
+* 0.1.4 add private key authenriate,  add local path config setting.
+* 0.1.5 fix path problem in windows pc.
 
 ### For more information
 

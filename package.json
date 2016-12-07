@@ -3,7 +3,7 @@
   "displayName": "upload",
   "description": "upload file to server with sftp",
   "icon":"synchronize.svg",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "publisher": "wuwei",
   "repository": {
     "type": "git",
