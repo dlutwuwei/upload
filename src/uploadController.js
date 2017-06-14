@@ -42,9 +42,10 @@ module.exports = class Upload {
         if(finalOptions.private_key) {
             // console.log(path.resolve(finalOptions.private_key));
             try {
-                connect_options.private_key = require('fs').readFileSync(path.resolve(finalOptions.private_key));
+                connect_options.privateKey = require('fs').readFileSync(path.resolve(finalOptions.private_key));
+                connect_options.passphrase = finalOptions.password;
             } catch(e) {
-                connect_options.private_key = '';                
+                connect_options.privateKey = '';                
             }
         }
         return this.core = new Promise(function (resolve, reject) {
